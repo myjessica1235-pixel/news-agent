@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>此刻 · 国内要闻导航</title>
+<style>
+  :root{
+    --paper:#f4f5f1;
+    --ink:#171a19;
+    --ink-soft:#565f5c;
+    --line:#d8dbd3;
+    --red:#b8371f;
+    --teal:#2a5f52;
+    --gold:#a9812f;
+    --violet:#5b4b8a;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"PingFang SC","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.5;
+    padding:0 0 60px;
+  }
+  a{color:inherit; text-decoration:none;}
+
+  /* Masthead */
+  header{
+    border-bottom:3px solid var(--ink);
+    padding:28px 24px 16px;
+    max-width:980px;
+    margin:0 auto;
+  }
+  .mast-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  h1{
+    font-family:"Noto Serif SC","Songti SC",serif;
+    font-weight:900;
+    font-size:clamp(32px,6vw,48px);
+    letter-spacing:1px;
+  }
+  h1 span{color:var(--red);}
+  .meta{
+    font-size:13px;
+    color:var(--ink-soft);
+    font-variant-numeric:tabular-nums;
+    text-align:right;
+  }
+  .subtitle{
+    margin-top:6px;
+    font-size:14px;
+    color:var(--ink-soft);
+    border-top:1px solid var(--line);
+    padding-top:10px;
+  }
+
+  main{
+    max-width:980px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+
+  .section{
+    margin-top:36px;
+  }
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:14px;
+    flex-wrap:wrap;
+  }
+  .tag{
+    font-family:"Noto Serif SC",serif;
+    font-weight:700;
+    font-size:20px;
+  }
+  .tag::before{
+    content:"";
+    display:inline-block;
+    width:10px;height:10px;
+    margin-right:8px;
+    background:var(--accent,var(--red));
+    border-radius:1px;
+  }
+  .section-desc{
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .card{
+    background:var(--paper);
+    padding:16px 16px 14px;
+    transition:background .15s ease;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .card:hover{background:#eceee7;}
+  .card .name{
+    font-size:15.5px;
+    font-weight:700;
+  }
+  .card .desc{
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  .card .go{
+    margin-top:8px;
+    font-size:11.5px;
+    color:var(--accent,var(--red));
+    letter-spacing:.5px;
+  }
+
+  .hot{--accent:var(--red);}
+  .media{--accent:var(--teal);}
+  .biz{--accent:var(--gold);}
+  .tech{--accent:#3b5aa6;}
+  .ai{--accent:var(--violet);}
+
+  /* ===== AI 摘要模块 ===== */
+  .ai-section{
+    margin-top:30px;
+  }
+  .ai-head-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:6px;
+  }
+  .ai-note{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-bottom:14px;
+  }
+  .ai-refresh{
+    font-family:inherit;
+    font-size:12px;
+    color:var(--violet);
+    background:transparent;
+    border:1px solid var(--violet);
+    padding:6px 14px;
+    cursor:pointer;
+    letter-spacing:.5px;
+    transition:background .15s ease, color .15s ease;
+    white-space:nowrap;
+  }
+  .ai-refresh:hover:not(:disabled){
+    background:var(--violet);
+    color:#fff;
+  }
+  .ai-refresh:disabled{
+    opacity:.5;
+    cursor:default;
+  }
+  .ai-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .ai-card{
+    background:var(--paper);
+    padding:16px 16px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    min-height:150px;
+  }
+  .ai-card .cat{
+    display:inline-block;
+    font-size:10.5px;
+    color:var(--violet);
+    border:1px solid var(--violet);
+    padding:1px 7px;
+    width:fit-content;
+    letter-spacing:.5px;
+  }
+  .ai-card .headline{
+    font-size:15px;
+    font-weight:700;
+    margin-top:2px;
+  }
+  .ai-card .summary{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    flex:1;
+  }
+  .ai-card .src{
+    font-size:11px;
+    color:#8a8f89;
+    margin-top:4px;
+  }
+  .ai-card.skeleton .headline,
+  .ai-card.skeleton .summary{
+    background:linear-gradient(90deg,#e3e5df 25%,#eceee7 37%,#e3e5df 63%);
+    background-size:400% 100%;
+    animation:shimmer 1.4s ease infinite;
+    color:transparent;
+    border-radius:2px;
+  }
+  .ai-card.skeleton .headline{height:16px; width:80%;}
+  .ai-card.skeleton .summary{height:38px;}
+  @keyframes shimmer{
+    0%{background-position:100% 50%;}
+    100%{background-position:0 50%;}
+  }
+  .ai-card.error{
+    color:var(--red);
+    font-size:12.5px;
+  }
+
+  footer{
+    max-width:980px;
+    margin:50px auto 0;
+    padding:16px 24px 0;
+    border-top:1px solid var(--line);
+    font-size:12px;
+    color:var(--ink-soft);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  @media (max-width:520px){
+    .mast-row{flex-direction:column;}
+    .meta{text-align:left;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="mast-row">
+    <h1>此刻<span>·</span>要闻</h1>
+    <div class="meta" id="clock"></div>
+  </div>
+  <div class="subtitle">无广告 · 无追踪 · 只做一件事：把最快的热搜和最权威的新闻入口放在一页里。点任意卡片直接跳转到对应网站的实时榜单。</div>
+</header>
+
+<main>
+
+  <!-- ===== 今日AI摘要（新增模块） ===== -->
+  <div class="section ai-section ai">
+    <div class="ai-head-row">
+      <div class="section-head" style="margin-bottom:0;">
+        <span class="tag">今日AI摘要</span>
+        <span class="section-desc">AI 生成的要点速览，帮你 10 秒了解概况</span>
+      </div>
+      <button class="ai-refresh" id="aiRefreshBtn">生成 / 刷新摘要</button>
+    </div>
+    <div class="ai-note" id="aiNote">⚠ 演示模块：当前未接入实时新闻数据源，摘要内容仅供功能展示，不代表真实时事，请以下方权威信源为准。</div>
+    <div class="ai-grid" id="aiGrid">
+      <!-- 卡片由 renderAICards() 动态生成，初始为占位骨架屏 -->
+    </div>
+  </div>
+
+  <div class="section hot">
+    <div class="section-head">
+      <span class="tag">综合热搜</span>
+      <span class="section-desc">全网最快反应的实时热点，适合"发生了什么大事"</span>
+    </div>
+    <div class="grid">
+      <a class="card" href="https://s.weibo.com/top/summary" target="_blank" rel="noopener">
+        <span class="name">微博热搜</span>
+        <span class="desc">社会话题反应最快</span>
+        <span class="go">前往榜单 →</span>
+      </a>
+      <a class="card" href="https://top.baidu.com/board?tab=realtime" target="_blank" rel="noopener">
+        <span class="name">百度热搜</span>
+        <span class="desc">搜索量驱动的实时榜</span>
+        <span class="go">前往榜单 →</span>
+      </a>
+      <a class="card" href="https://www.zhihu.com/hot" target="_blank" rel="noopener">
+        <span class="name">知乎热榜</span>
+        <span class="desc">带讨论和背景解读</span>
+        <span class="go">前往榜单 →</span>
+      </a>
+      <a class="card" href="https://www.toutiao.com/hot-event/hot-board/" target="_blank" rel="noopener">
+        <span class="name">今日头条热榜</span>
+        <span class="desc">算法推荐热点聚合</span>
+        <span class="go">前往榜单 →</span>
+      </a>
+      <a class="card" href="https://www.douyin.com/hot" target="_blank" rel="noopener">
+        <span class="name">抖音热点榜</span>
+        <span class="desc">短视频视角的热点</span>
+        <span class="go">前往榜单 →</span>
+      </a>
+      <a class="card" href="https://www.thepaper.cn/load_index.jsp" target="_blank" rel="noopener">
+        <span class="name">澎湃新闻要闻</span>
+        <span class="desc">时政社会深度报道</span>
+        <span class="go">前往榜单 →</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="section media">
+    <div class="section-head">
+      <span class="tag">权威媒体</span>
+      <span class="section-desc">官方口径与核实过的新闻，适合确认事实</span>
+    </div>
+    <div class="grid">
+      <a class="card" href="http://www.news.cn/" target="_blank" rel="noopener">
+        <span class="name">新华网</span>
+        <span class="desc">国家通讯社</span>
+        <span class="go">前往首页 →</span>
+      </a>
+      <a class="card" href="http://www.people.com.cn/" target="_blank" rel="noopener">
+        <span class="name">人民网</span>
+        <span class="desc">人民日报官方网站</span>
+        <span class="go">前往首页 →</span>
+      </a>
+      <a class="card" href="https://news.cctv.com/" target="_blank" rel="noopener">
+        <span class="name">央视新闻</span>
+        <span class="desc">CCTV 新闻中心</span>
+        <span class="go">前往首页 →</span>
+      </a>
+      <a class="card" href="https://www.caixin.com/" target="_blank" rel="noopener">
+        <span class="name">财新网</span>
+        <span class="desc">深度调查见长</span>
+        <span class="go">前往首页 →</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="section biz">
+    <div class="section-head">
+      <span class="tag">财经商业</span>
+      <span class="section-desc">市场、政策与公司动态</span>
+    </div>
+    <div class="grid">
+      <a class="card" href="https://www.yicai.com/" target="_blank" rel="noopener">
+        <span class="name">第一财经</span>
+        <span class="desc">财经要闻与市场</span>
+        <span class="go">前往首页 →</span>
+      </a>
+      <a class="card" href="https://wallstreetcn.com/" target="_blank" rel="noopener">
+        <span class="name">华尔街见闻</span>
+        <span class="desc">全球市场快讯</span>
+        <span class="go">前往首页 →</span>
+      </a>
+      <a class="card" href="https://www.21jingji.com/" target="_blank" rel="noopener">
+        <span class="name">21财经</span>
+        <span class="desc">21世纪经济报道</span>
+        <span class="go">前往首页 →</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="section tech">
+    <div class="section-head">
+      <span class="tag">科技动态</span>
+      <span class="section-desc">产品、行业与创投新闻</span>
+    </div>
+    <div class="grid">
+      <a class="card" href="https://36kr.com/" target="_blank" rel="noopener">
+        <span class="name">36氪</span>
+        <span class="desc">创投与新兴科技</span>
+        <span class="go">前往首页 →</span>
+      </a>
+      <a class="card" href="https://www.ithome.com/" target="_blank" rel="noopener">
+        <span class="name">IT之家</span>
+        <span class="desc">数码与互联网快讯</span>
+        <span class="go">前往首页 →</span>
+      </a>
+      <a class="card" href="https://www.huxiu.com/" target="_blank" rel="noopener">
+        <span class="name">虎嗅</span>
+        <span class="desc">商业与科技观察</span>
+        <span class="go">前往首页 →</span>
+      </a>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span>纯静态页面，不收集任何数据，可保存到本地随时打开。</span>
+  <span id="today"></span>
+</footer>
+
+<script>
+  /* ===== 原有：时钟功能，保持不变 ===== */
+  function pad(n){return n.toString().padStart(2,'0');}
+  function updateClock(){
+    const d = new Date();
+    const weekdays = ['周日','周一','周二','周三','周四','周五','周六'];
+    document.getElementById('clock').textContent =
+      `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 ${weekdays[d.getDay()]} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    document.getElementById('today').textContent =
+      `打开于 ${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  /* ===============================================================
+     ===== 新增：今日AI摘要模块 =====
+     结构说明：
+     1. getNewsData()   —— 【API 接口预留位置】负责提供"待摘要的原始新闻数据"。
+                            目前是空数组占位，接入真实新闻源（RSS/新闻API/
+                            自建后端抓取服务）后，在这里返回真实的新闻列表即可，
+                            格式建议：[{title, content, url, source, time}, ...]
+     2. summarizeWithAI() —— 调用 Claude API 把 getNewsData() 的原始内容
+                            压缩成结构化摘要卡片数据（JSON数组）。
+     3. renderAICards()  —— 只负责渲染，不关心数据来源，保证前后端解耦。
+     =============================================================== */
+
+  const AI_CARD_COUNT = 4; // 骨架屏 / 摘要卡片数量
+
+  // ---- 1. 【API 接口预留】原始新闻数据获取 ----
+  // TODO: 接入真实数据源后替换此函数的实现。
+  // 例如：
+  //   const res = await fetch('https://your-backend.com/api/today-news');
+  //   return await res.json();
+  async function getNewsData(){
+    // 当前无真实数据源，返回空数组 —— summarizeWithAI 会据此走"演示模式"
+    return [];
+  }
+
+  // ---- 2. 调用 AI 生成结构化摘要 ----
+  async function summarizeWithAI(newsData){
+    const hasRealData = Array.isArray(newsData) && newsData.length > 0;
+
+    const systemPrompt = hasRealData
+      ? `你是新闻编辑。基于用户提供的新闻原文，输出今日要闻摘要。
+只返回 JSON 数组，不要任何多余文字、不要 markdown 代码块标记。
+每个元素包含四个字段：
+- category：分类（如"综合"/"财经"/"科技"/"国际"）
+- headline：8-16字精炼标题
+- summary：40-70字摘要，客观中立
+- source：新闻来源名称
+最多输出 ${AI_CARD_COUNT} 条，按重要性排序。`
+      : `你是新闻编辑。当前没有接入真实新闻数据源，这是一次功能演示。
+请生成 ${AI_CARD_COUNT} 条"示例卡片"，用于展示卡片样式，
+category 请分别使用"综合""财经""科技""国际"，
+headline 请直接写"示例标题"这类占位文字（不要编造具体新闻事实或人名机构），
+summary 请说明"这里将显示接入真实新闻源后由AI生成的摘要内容"这类占位说明，
+source 统一写"演示数据"。
+只返回 JSON 数组，不要任何多余文字、不要 markdown 代码块标记。`;
+
+    const userContent = hasRealData
+      ? `请基于以下新闻原文生成摘要：\n${JSON.stringify(newsData).slice(0, 6000)}`
+      : `请生成占位演示卡片。`;
+
+      const response = await fetch("http://127.0.0.1:5000/api/summary", {
+  method: "GET"
+});
+
+if(!response.ok){
+  throw new Error(`API 请求失败：${response.status}`);
+}
+
+const data = await response.json();
+
+if(!data.success){
+  throw new Error(data.error || "生成失败");
+}
+
+return data.cards;
+  }
+
+  // ---- 3. 渲染函数 ----
+  function renderSkeleton(){
+    const grid = document.getElementById('aiGrid');
+    grid.innerHTML = '';
+    for(let i=0;i<AI_CARD_COUNT;i++){
+      const card = document.createElement('div');
+      card.className = 'ai-card skeleton';
+      card.innerHTML = `
+        <span class="cat">&nbsp;</span>
+        <span class="headline">加载中</span>
+        <span class="summary">加载中加载中加载中加载中</span>
+      `;
+      grid.appendChild(card);
+    }
+  }
+
+  function renderAICards(items){
+    const grid = document.getElementById('aiGrid');
+    grid.innerHTML = '';
+    items.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'ai-card';
+      card.innerHTML = `
+        <span class="cat">${escapeHTML(item.category || '资讯')}</span>
+        <span class="headline">${escapeHTML(item.headline || '未命名摘要')}</span>
+        <span class="summary">${escapeHTML(item.summary || '')}</span>
+        <span class="src">来源：${escapeHTML(item.source || '未知')}</span>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function renderError(message){
+    const grid = document.getElementById('aiGrid');
+    grid.innerHTML = `<div class="ai-card error">摘要生成失败：${escapeHTML(message)}<br>可稍后点击"生成 / 刷新摘要"重试，或检查 getNewsData() 的数据源接入情况。</div>`;
+  }
+
+  function escapeHTML(str){
+    const div = document.createElement('div');
+    div.textContent = String(str);
+    return div.innerHTML;
+  }
+
+  // ---- 主流程：串联 数据获取 → AI摘要 → 渲染 ----
+  async function loadAISummary(){
+    const btn = document.getElementById('aiRefreshBtn');
+    btn.disabled = true;
+    btn.textContent = '生成中…';
+    renderSkeleton();
+    try{
+      const newsData = await getNewsData();
+      const cards = await summarizeWithAI(newsData);
+      renderAICards(cards.slice(0, AI_CARD_COUNT));
+    }catch(err){
+      renderError(err.message || String(err));
+    }finally{
+      btn.disabled = false;
+      btn.textContent = '生成 / 刷新摘要';
+    }
+  }
+
+  document.getElementById('aiRefreshBtn').addEventListener('click', loadAISummary);
+
+  // 页面打开时自动生成一次（如需改为手动触发，删除下面这行即可）
+  loadAISummary();
+</script>
+
+</body>
+</html>
